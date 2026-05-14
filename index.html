@@ -6,8 +6,15 @@
     <title>Stock123 | 法人量動能戰情室</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
-        .stock-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
+        body { 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            font-family: sans-serif; 
+        }
+        .stock-card { 
+            background: linear-gradient(145deg, #1e293b, #0f172a); 
+            border: 1px solid #334155; 
+        }
         .trend-up { color: #f43f5e; } /* 漲紅 */
         .trend-down { color: #10b981; } /* 跌綠 */
     </style>
@@ -17,7 +24,6 @@
         <h1 class="text-3xl font-bold tracking-tight">戰情看板 <span class="text-sm font-normal text-slate-400">| 自動掃描結果</span></h1>
         <p id="update-time" class="text-xs text-slate-500 mt-2">最後更新：載入中...</p>
     </header>
-
     <main>
         <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- 資料將由 JS 自動插入 -->
@@ -28,16 +34,15 @@
     <script>
         async function loadStockData() {
             try {
-                // 讀取由 Actions 產生的 data.json
                 const response = await fetch('data.json?t=' + new Date().getTime());
                 const data = await response.json();
-                
+               
                 const container = document.getElementById('stock-list');
                 const timeEl = document.getElementById('update-time');
-                
+               
                 timeEl.innerText = `最後更新：${data.last_update || '剛剛'}`;
                 container.innerHTML = '';
-
+                
                 if (data.stocks && data.stocks.length > 0) {
                     data.stocks.forEach(stock => {
                         const card = `
@@ -72,29 +77,14 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-500 text-center">無法讀取資料。請確認 data.json 已正確產生。</div>';
+                document.getElementById('stock-list').innerHTML = 
+                    '<div class="col-span-full text-red-500 text-center">無法讀取資料。<br>請確認 data.json 已正確產生。</div>';
             }
         }
 
+        // 第一次載入 + 每 5 分鐘自動刷新
         loadStockData();
-        // 每 5 分鐘自動刷新
         setInterval(loadStockData, 300000);
     </script>
 </body>
 </html>
-import json
-from datetime import datetime
-
-# 假設你的掃描結果是一個 list
-results = [
-    {"id": "2337", "name": "旺宏", "price": 25.5, "change": 1.2, "institutional_buy": 1500, "momentum_score": 8},
-    # ... 其他掃描到的股票
-]
-
-data_to_save = {
-    "last_update": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "stocks": results
-}
-
-with open('data.json', 'w', encoding='utf-8') as f:
-    json.dump(data_to_save, f, ensure_ascii=False, indent=4)
