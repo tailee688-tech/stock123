@@ -1,34 +1,64 @@
 {
-  "last_update": "2026-05-14 15:53:15",
+  "last_update": "2026-05-14 16:04:13",
   "stocks": [
     {
       "id": "2337",
-      "name": "旺宏",
-      "price": 26.45,
-      "change": 2.1,
-      "institutional_buy": 3850,
-      "momentum_score": 9,
-      "suggest_buy": 25.8,
+      "name": "MACRONIXINTERNATIONAL",
+      "price": 169.0,
+      "change": -1.5,
+      "institutional_buy": 7562,
+      "momentum_score": 10,
+      "suggest_buy": 163.09,
       "category": "月線之上"
     },
     {
       "id": "2408",
-      "name": "友達",
-      "price": 18.95,
-      "change": 1.8,
-      "institutional_buy": 2150,
-      "momentum_score": 8,
-      "suggest_buy": 18.4,
+      "name": "NANYATECHNOLOGYCORPORATION",
+      "price": 341.0,
+      "change": -1.2,
+      "institutional_buy": 1959,
+      "momentum_score": 7,
+      "suggest_buy": 329.06,
       "category": "月線之上"
     },
     {
       "id": "3481",
-      "name": "群創",
-      "price": 13.25,
-      "change": 3.4,
-      "institutional_buy": 4780,
+      "name": "INNOLUXCORPORATION",
+      "price": 35.4,
+      "change": -1.4,
+      "institutional_buy": 6047,
+      "momentum_score": 8,
+      "suggest_buy": 34.16,
+      "category": "月線之上"
+    },
+    {
+      "id": "2303",
+      "name": "UNITEDMICROELECTRONICS",
+      "price": 108.0,
+      "change": 5.4,
+      "institutional_buy": 3489,
+      "momentum_score": 8,
+      "suggest_buy": 104.22,
+      "category": "月線之上"
+    },
+    {
+      "id": "3711",
+      "name": "ASETECHNOLOGYHOLDINGCOLTD",
+      "price": 548.0,
+      "change": 0.1,
+      "institutional_buy": 2625,
       "momentum_score": 10,
-      "suggest_buy": 12.9,
+      "suggest_buy": 528.82,
+      "category": "月線之上"
+    },
+    {
+      "id": "2354",
+      "name": "FOXCONNTECHCO",
+      "price": 59.0,
+      "change": -2.6,
+      "institutional_buy": 4924,
+      "momentum_score": 8,
+      "suggest_buy": 56.93,
       "category": "月線之上"
     }
   ]
