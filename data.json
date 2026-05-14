@@ -1,0 +1,32 @@
+{
+  "last_update": "2026-05-14 23:00:00",
+  "stocks": [
+    {
+      "id": "2337",
+      "name": "旺宏",
+      "price": 25.80,
+      "change": 1.5,
+      "institutional_buy": 2850,
+      "momentum_score": 8,
+      "category": "法人掃描"
+    },
+    {
+      "id": "2408",
+      "name": "友達",
+      "price": 18.45,
+      "change": -0.3,
+      "institutional_buy": 1640,
+      "momentum_score": 7,
+      "category": "法人掃描"
+    },
+    {
+      "id": "3481",
+      "name": "群創",
+      "price": 12.75,
+      "change": 0.8,
+      "institutional_buy": 3920,
+      "momentum_score": 9,
+      "category": "法人掃描"
+    }
+  ]
+}
