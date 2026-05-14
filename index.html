@@ -17,6 +17,7 @@
         }
         .trend-up { color: #f43f5e; }
         .trend-down { color: #22c55e; }
+        .suggest-buy { color: #eab308; font-weight: 700; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -61,7 +62,8 @@
                                     </div>
                                     <span class="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-xs font-medium">${stock.category}</span>
                                 </div>
-                                <div class="grid grid-cols-2 gap-6">
+                                
+                                <div class="grid grid-cols-2 gap-6 mb-6">
                                     <div>
                                         <p class="text-slate-400 text-xs">目前價格</p>
                                         <p class="text-3xl font-mono ${stock.change >= 0 ? 'trend-up' : 'trend-down'}">${stock.price}</p>
@@ -71,9 +73,16 @@
                                         <p class="text-2xl font-semibold text-blue-400">${stock.institutional_buy} 張</p>
                                     </div>
                                 </div>
-                                <div class="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center">
-                                    <span class="text-slate-400 text-sm">動能強度</span>
-                                    <span class="text-2xl font-bold text-yellow-400">${stock.momentum_score}/10</span>
+
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <p class="text-slate-400 text-xs">動能強度</p>
+                                        <p class="text-3xl font-bold text-yellow-400">${stock.momentum_score}/10</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-slate-400 text-xs">建議買入價</p>
+                                        <p class="suggest-buy text-2xl font-mono">${stock.suggest_buy || stock.price}</p>
+                                    </div>
                                 </div>
                             </div>
                         `;
