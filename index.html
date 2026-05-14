@@ -37,28 +37,10 @@
     <script>
         let currentMode = 0;
 
-        // 當沖模式使用較新的模擬價格（你之後可改成真實掃描）
-        const intradayData = {
-            last_update: "2026-05-15 11:45",
-            stocks: [
-                {id:"2337", name:"旺宏", price:26.45, change:1.8, institutional_buy:3200, momentum_score:9,
-                 ma_price:25.8, volume_ratio:4.1, rsi:71, category:"99%勝率當沖"},
-                {id:"2408", name:"友達", price:18.95, change:2.3, institutional_buy:1850, momentum_score:8,
-                 ma_price:18.4, volume_ratio:3.7, rsi:69, category:"99%勝率當沖"},
-                {id:"3481", name:"群創", price:13.25, change:3.1, institutional_buy:4500, momentum_score:10,
-                 ma_price:12.7, volume_ratio:5.2, rsi:74, category:"99%勝率當沖"}
-            ]
-        };
-
         async function loadStockData() {
             try {
-                let data;
-                if (currentMode === 0) {
-                    const response = await fetch('data.json?t=' + new Date().getTime());
-                    data = await response.json();
-                } else {
-                    data = intradayData;
-                }
+                const response = await fetch((currentMode === 0 ? 'data.json' : 'intraday.json') + '?t=' + new Date().getTime());
+                const data = await response.json();
                 
                 const container = document.getElementById('stock-list');
                 const timeEl = document.getElementById('update-time');
@@ -84,20 +66,16 @@
                                     <p class="text-3xl font-mono ${stock.change >= 0 ? 'trend-up' : 'trend-down'}">${stock.price}</p>
                                 </div>
                                 <div>
-                                    <p class="text-slate-400 text-xs">${isIntraday ? '主力均價' : '法人買超'}</p>
-                                    <p class="text-2xl font-semibold ${isIntraday ? 'text-yellow-400' : 'text-blue-400'}">
-                                        ${isIntraday ? stock.ma_price : stock.institutional_buy + ' 張'}
+                                    <p class="text-slate-400 text-xs">${isIntraday ? '主力均價' : '建議買入價'}</p>
+                                    <p class="text-2xl font-semibold ${isIntraday ? 'text-yellow-400' : 'text-emerald-400'}">
+                                        ${isIntraday ? stock.ma_price : stock.suggest_buy}
                                     </p>
                                 </div>
                             </div>
                             ${isIntraday ? `
                             <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-                                <div class="text-center bg-slate-800/80 rounded-xl py-2">
-                                    5分量爆 <span class="font-bold text-red-400">${stock.volume_ratio}倍</span>
-                                </div>
-                                <div class="text-center bg-slate-800/80 rounded-xl py-2">
-                                    RSI <span class="font-bold text-yellow-400">${stock.rsi}</span>
-                                </div>
+                                <div>5分量爆 <span class="font-bold text-red-400">${stock.volume_ratio}倍</span></div>
+                                <div>RSI <span class="font-bold text-yellow-400">${stock.rsi}</span></div>
                             </div>` : ''}
                             <div class="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center">
                                 <span class="text-slate-400">動能強度</span>
@@ -108,7 +86,6 @@
                     container.innerHTML += card;
                 });
             } catch (e) {
-                console.error(e);
                 document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-400 text-center py-12">資料載入失敗，請重新整理</div>';
             }
         }
