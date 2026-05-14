@@ -6,11 +6,18 @@
     <title>煥然戰情室 | 法人量動能 + 99%勝率當沖</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Noto Sans TC', system-ui, sans-serif; }
-        .stock-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
+        body { 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            font-family: 'Noto Sans TC', system-ui, sans-serif; 
+        }
+        .stock-card { 
+            background: linear-gradient(145deg, #1e293b, #0f172a); 
+            border: 1px solid #334155; 
+        }
         .trend-up { color: #f43f5e; }
         .trend-down { color: #22c55e; }
-        .tab-active { border-bottom: 3px solid #eab308; color: #eab308; }
+        .tab-active { border-bottom: 3px solid #eab308; color: #eab308; font-weight: bold; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -20,43 +27,47 @@
         </h1>
         <p id="update-time" class="text-sm text-slate-400 mt-2">最後更新：載入中...</p>
         
+        <!-- 模式切換 -->
         <div class="flex gap-2 mt-6 border-b border-slate-700">
-            <button onclick="switchMode(0)" id="tab0" class="tab-active flex-1 py-3 text-lg font-bold">📊 法人量動能</button>
-            <button onclick="switchMode(1)" id="tab1" class="flex-1 py-3 text-lg font-bold">🚀 99%勝率當沖</button>
+            <button onclick="switchMode(0)" id="tab0" class="tab-active flex-1 py-3 text-lg">📊 法人量動能</button>
+            <button onclick="switchMode(1)" id="tab1" class="flex-1 py-3 text-lg">🚀 99%勝率當沖</button>
         </div>
     </header>
     
     <main>
-        <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 卡片會由 JS 動態產生 -->
+        </div>
     </main>
 
     <footer class="mt-12 text-center text-xs text-slate-500">
-        由煥然親自開發 • 每天08:30自動更新 • 僅供參考 • 非投資建議
+        由煥然親自開發 • 每天 08:30 自動更新 • 僅供參考 • 非投資建議
     </footer>
 
     <script>
-        let currentMode = 0;
+        let currentMode = 0; // 0 = 法人模式, 1 = 當沖模式
 
         async function loadStockData() {
             try {
-                const response = await fetch((currentMode === 0 ? 'data.json' : 'intraday.json') + '?t=' + new Date().getTime());
+                const file = currentMode === 0 ? 'data.json' : 'intraday.json';
+                const response = await fetch(file + '?t=' + new Date().getTime());
                 const data = await response.json();
                 
+                document.getElementById('update-time').innerText = `最後更新：${data.last_update || '剛剛'}`;
+                
                 const container = document.getElementById('stock-list');
-                const timeEl = document.getElementById('update-time');
-                timeEl.innerText = `最後更新：${data.last_update || '剛剛'}`;
                 container.innerHTML = '';
 
                 data.stocks.forEach(stock => {
                     const isIntraday = currentMode === 1;
-                    const card = `
+                    const cardHTML = `
                         <div class="stock-card rounded-2xl p-6 shadow-xl">
-                            <div class="flex justify-between items-start mb-4">
+                            <div class="flex justify-between items-start mb-5">
                                 <div>
                                     <h2 class="text-2xl font-bold">${stock.name}</h2>
                                     <p class="text-slate-400">${stock.id}</p>
                                 </div>
-                                <span class="px-3 py-1 ${isIntraday ? 'bg-red-900/70 text-red-300' : 'bg-blue-900/50 text-blue-300'} rounded-full text-xs font-medium">
+                                <span class="px-3 py-1 text-xs font-medium rounded-full ${isIntraday ? 'bg-red-900/70 text-red-300' : 'bg-blue-900/50 text-blue-300'}">
                                     ${stock.category}
                                 </span>
                             </div>
@@ -68,14 +79,14 @@
                                 <div>
                                     <p class="text-slate-400 text-xs">${isIntraday ? '主力均價' : '建議買入價'}</p>
                                     <p class="text-2xl font-semibold ${isIntraday ? 'text-yellow-400' : 'text-emerald-400'}">
-                                        ${isIntraday ? stock.ma_price : stock.suggest_buy}
+                                        ${isIntraday ? stock.ma_price || stock.price : stock.suggest_buy || stock.price}
                                     </p>
                                 </div>
                             </div>
                             ${isIntraday ? `
-                            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-                                <div>5分量爆 <span class="font-bold text-red-400">${stock.volume_ratio}倍</span></div>
-                                <div>RSI <span class="font-bold text-yellow-400">${stock.rsi}</span></div>
+                            <div class="mt-4 grid grid-cols-2 gap-4 text-sm bg-slate-800/50 rounded-xl p-3">
+                                <div>5分量爆 <span class="font-bold text-red-400">${stock.volume_ratio || '—'}倍</span></div>
+                                <div>RSI <span class="font-bold text-yellow-400">${stock.rsi || '—'}</span></div>
                             </div>` : ''}
                             <div class="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center">
                                 <span class="text-slate-400">動能強度</span>
@@ -83,10 +94,13 @@
                             </div>
                         </div>
                     `;
-                    container.innerHTML += card;
+                    container.innerHTML += cardHTML;
                 });
-            } catch (e) {
-                document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-400 text-center py-12">資料載入失敗，請重新整理</div>';
+            } catch (err) {
+                document.getElementById('stock-list').innerHTML = `
+                    <div class="col-span-full text-center py-20 text-red-400">
+                        資料載入失敗<br>請確認 data.json 或 intraday.json 已存在
+                    </div>`;
             }
         }
 
@@ -97,6 +111,7 @@
             loadStockData();
         }
 
+        // 啟動
         loadStockData();
         setInterval(loadStockData, 300000);
     </script>
