@@ -1,55 +1,26 @@
-import yfinance as yf
-import pandas_ta as ta
-import pandas as pd
+name: AI_Stock_Hunter_System
 
-# 【導師指令】設定觀察標的：選用具備抗跌飆股基因的族群
-# 包含：4772 台特化 (特化龍頭), 6788 華景電 (設備), 2449 京元電 (測試)
-tickers = ["4772.TW", "6788.TW", "2449.TW", "2330.TW", "3054.TW"]
+on:
+  schedule:
+    - cron: '30 7 * * 1-5'
+  workflow_dispatch:
 
-def start_hunting():
-    print("🚀 高標準 AI 選股系統啟動，開始掃描市場數據...")
-    
-    for symbol in tickers:
-        try:
-            # 自動抓取數據 (包含開盤價 Open, 收盤價 Close, 成交量 Volume)
-            df = yf.download(symbol, period="3mo", interval="1d", progress=False)
-            if df.empty or len(df) < 20: continue
-            
-            # --- 技術指標運算 ---
-            # 1. 均線與成本線 (事實依據)
-            df['MA5'] = ta.sma(df['Close'], length=5)
-            df['MA20'] = ta.sma(df['Close'], length=20) # 視為波段支撐與主力成本參考
-            
-            # 2. 動能指標 (KD 與 MACD)
-            kd = ta.stoch(df['High'], df['Low'], df['Close'], k=9, d=3)
-            df = pd.concat([df, kd], axis=1)
-            macd = ta.macd(df['Close'])
-            df = pd.concat([df, macd], axis=1)
-            
-            # --- 獵手過濾邏輯 (90% 勝率思維) ---
-            last = df.iloc[-1]
-            prev = df.iloc[-2]
-            avg_vol = df['Volume'].rolling(5).mean().iloc[-1]
-            
-            # 條件 A: 回踩 5 日線且在 20 日線(主力成本)之上
-            c_retrace = (last['Close'] >= last['MA5'] * 0.98) and (last['Close'] > last['MA20'])
-            
-            # 條件 B: KD 與 MACD 動能轉正
-            c_momentum = (last['STOCHk_9_3_3'] > last['STOCHd_9_3_3']) and \
-                         (last['MACDh_12_26_9'] > prev['MACDh_12_26_9'])
-            
-            # 條件 C: 價量齊揚 (漲幅 > 1% 且成交量放大)
-            c_volume = (last['Close'] > last['Open']) and (last['Volume'] > avg_vol * 1.2)
+jobs:
+  stock_scan_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 下載程式碼
+        uses: actions/checkout@v3
 
-            # --- 決策輸出 ---
-            if c_retrace and c_momentum and c_volume:
-                print(f"✅ 【強烈訊號】{symbol}：符合回踩發動 + 價量齊揚！")
-                print(f"   -> 當前收盤: {last['Close']:.2f} | 5日線: {last['MA5']:.2f}")
-            else:
-                print(f"❌ {symbol}：未達共振條件，持續觀望。")
+      - name: 2. 安裝 Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-        except Exception as e:
-            print(f"⚠️ 掃描 {symbol} 時發生異常: {e}")
+      - name: 3. 安裝必要套件
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas yfinance pandas-ta
 
-if __name__ == "__main__":
-    start_hunting()
+      - name: 4. 執行 AI 選股
+        run: python trading_bot.py
