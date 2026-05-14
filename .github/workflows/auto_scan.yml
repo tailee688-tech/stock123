@@ -2,8 +2,11 @@ name: 煥然戰情室 - 每日自動掃描
 
 on:
   schedule:
-    - cron: '30 0 * * *'     # 每天台灣時間早上 8:30 執行
-  workflow_dispatch:         # 可以手動點擊執行
+    - cron: '30 0 * * *'     # 每天台灣時間早上 8:30
+  workflow_dispatch:
+
+permissions:
+  contents: write     # 關鍵！允許 push
 
 jobs:
   scan-and-deploy:
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout 程式碼
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 設定 Python 環境
         uses: actions/setup-python@v5
