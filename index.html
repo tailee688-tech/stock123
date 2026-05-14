@@ -3,758 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高勝率交易系統 - Stock123</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Stock123 | 法人量動能戰情室</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-        
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-        
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-        
-        .input-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-            font-size: 0.95em;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 1em;
-            transition: border-color 0.3s ease;
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        button {
-            padding: 14px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-        }
-        
-        .btn-calculate {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            grid-column: 1 / -1;
-        }
-        
-        .btn-calculate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-signal {
-            border-radius: 6px;
-            font-size: 0.95em;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-signal:hover {
-            transform: scale(1.05);
-        }
-        
-        .btn-day-trade {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
-        .btn-day-trade:hover {
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
-        }
-        
-        .btn-swing {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        
-        .btn-swing:hover {
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-        }
-        
-        .btn-momentum {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        
-        .btn-momentum:hover {
-            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
-        }
-        
-        .results-section {
-            grid-column: 1 / -1;
-        }
-        
-        .results-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        
-        .signals-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .signal-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 5px solid #999;
-            transition: all 0.3s ease;
-        }
-        
-        .signal-card.active {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        
-        .signal-card.day-trade {
-            border-left-color: #f5576c;
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        }
-        
-        .signal-card.swing {
-            border-left-color: #00f2fe;
-            background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%);
-        }
-        
-        .signal-card.momentum {
-            border-left-color: #43e97b;
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-        }
-        
-        .signal-emoji {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        .signal-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-        
-        .signal-message {
-            color: #666;
-            font-size: 1.1em;
-            font-weight: 500;
-        }
-        
-        .indicators-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .indicators-table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        .indicators-table td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .indicators-table tr:hover {
-            background: #f9f9f9;
-        }
-        
-        .indicators-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .value-positive {
-            color: #43e97b;
-            font-weight: 600;
-        }
-        
-        .value-negative {
-            color: #f5576c;
-            font-weight: 600;
-        }
-        
-        .value-neutral {
-            color: #666;
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 20px;
-        }
-        
-        .info-box {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        
-        .info-box p {
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .signals-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .input-row {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .error-message {
-            color: #f5576c;
-            font-size: 0.9em;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .success-message {
-            color: #43e97b;
-            font-size: 0.9em;
-            margin-top: 5px;
-            display: none;
-        }
+        body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
+        .stock-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
+        .trend-up { color: #f43f5e; } /* 漲紅 */
+        .trend-down { color: #10b981; } /* 跌綠 */
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🚀 高勝率交易系統</h1>
-            <p>Stock123 - 智能選股工具</p>
-        </header>
-        
-        <div class="main-grid">
-            <!-- 輸入部分 -->
-            <div class="card input-section">
-                <h2>📊 數據輸入</h2>
-                <div class="info-box">
-                    <p>輸入股票的最新K線數據進行技術分析</p>
-                </div>
-                
-                <div class="input-group">
-                    <label>開盤價 (Open)</label>
-                    <input type="number" id="open" placeholder="例如: 100" step="0.01">
-                    <span class="error-message">請輸入有效的開盤價</span>
-                </div>
-                
-                <div class="input-group">
-                    <label>最高價 (High)</label>
-                    <input type="number" id="high" placeholder="例如: 105" step="0.01">
-                    <span class="error-message">請輸入有效的最高價</span>
-                </div>
-                
-                <div class="input-group">
-                    <label>最低價 (Low)</label>
-                    <input type="number" id="low" placeholder="例如: 98" step="0.01">
-                    <span class="error-message">請輸入有效的最低價</span>
-                </div>
-                
-                <div class="input-group">
-                    <label>收盤價 (Close)</label>
-                    <input type="number" id="close" placeholder="例如: 103" step="0.01">
-                    <span class="error-message">請輸入有效的收盤價</span>
-                </div>
-                
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>成交量 (Volume)</label>
-                        <input type="number" id="volume" placeholder="例如: 1000000" step="1">
-                        <span class="error-message">請輸入有效的成交量</span>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label>MA5 (5日均線)</label>
-                        <input type="number" id="ma5" placeholder="例如: 102" step="0.01">
-                        <span class="error-message">請輸入有效的MA5</span>
-                    </div>
-                </div>
-                
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>MA20 (20日均線)</label>
-                        <input type="number" id="ma20" placeholder="例如: 100" step="0.01">
-                        <span class="error-message">請輸入有效的MA20</span>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label>主力成本線</label>
-                        <input type="number" id="instCost" placeholder="例如: 99" step="0.01">
-                        <span class="error-message">請輸入有效的成本線</span>
-                    </div>
-                </div>
-                
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>KD K值</label>
-                        <input type="number" id="kdK" placeholder="例如: 75" min="0" max="100" step="0.01">
-                        <span class="error-message">請輸入 0-100 之間的數值</span>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label>KD D值</label>
-                        <input type="number" id="kdD" placeholder="例如: 70" min="0" max="100" step="0.01">
-                        <span class="error-message">請輸入 0-100 之間的數值</span>
-                    </div>
-                </div>
-                
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>MACD 柱狀體</label>
-                        <input type="number" id="macdH" placeholder="例如: 0.5" step="0.01">
-                        <span class="error-message">請輸入有效的MACD柱狀體</span>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label>前日MACD柱狀體</label>
-                        <input type="number" id="macdHPrev" placeholder="例如: 0.3" step="0.01">
-                        <span class="error-message">請輸入有效的前日MACD</span>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label>前日成交量</label>
-                    <input type="number" id="volumePrev" placeholder="例如: 800000" step="1">
-                    <span class="error-message">請輸入有效的前日成交量</span>
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn-calculate" onclick="calculateSignals()">🔍 分析交易信號</button>
-                    <button class="btn-signal btn-day-trade" onclick="checkDayTrade()">🔥 當沖訊號</button>
-                    <button class="btn-signal btn-swing" onclick="checkSwing()">🚀 3-5日短波</button>
-                    <button class="btn-signal btn-momentum" onclick="checkMomentum()">💎 10日波段</button>
-                </div>
-            </div>
-            
-            <!-- 結果部分 -->
-            <div class="card results-section">
-                <h2>📈 交易信號結果</h2>
-                
-                <div class="signals-grid">
-                    <div class="signal-card day-trade" id="dayTradeCard">
-                        <div class="signal-emoji">🔥</div>
-                        <div class="signal-title">當沖訊號 (Day Trade)</div>
-                        <div class="signal-message" id="dayTradeResult">等待分析...</div>
-                    </div>
-                    
-                    <div class="signal-card swing" id="swingCard">
-                        <div class="signal-emoji">🚀</div>
-                        <div class="signal-title">3-5日短波 (Swing)</div>
-                        <div class="signal-message" id="swingResult">等待分析...</div>
-                    </div>
-                    
-                    <div class="signal-card momentum" id="momentumCard">
-                        <div class="signal-emoji">💎</div>
-                        <div class="signal-title">10日波段 (Momentum)</div>
-                        <div class="signal-message" id="momentumResult">等待分析...</div>
-                    </div>
-                </div>
-                
-                <h3 style="color: #333; margin-top: 25px; margin-bottom: 15px;">技術指標詳情</h3>
-                <table class="indicators-table">
-                    <thead>
-                        <tr>
-                            <th>指標名稱</th>
-                            <th>當前值</th>
-                            <th>評估</th>
-                        </tr>
-                    </thead>
-                    <tbody id="indicatorsBody">
-                        <tr>
-                            <td colspan="3" style="text-align: center; color: #999;">請先輸入數據並點擊分析</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<body class="p-4 md:p-8">
+    <header class="mb-8 border-b border-slate-700 pb-4">
+        <h1 class="text-3xl font-bold tracking-tight">戰情看板 <span class="text-sm font-normal text-slate-400">| 自動掃描結果</span></h1>
+        <p id="update-time" class="text-xs text-slate-500 mt-2">最後更新：載入中...</p>
+    </header>
+
+    <main>
+        <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 資料將由 JS 自動插入 -->
+            <div class="animate-pulse text-slate-500 text-center col-span-full py-20">資料掃描中...</div>
         </div>
-        
-        <!-- 完整結果 -->
-        <div class="card">
-            <h2>📋 詳細分析報告</h2>
-            <div id="detailedReport" style="color: #666; line-height: 1.8;">
-                <p style="text-align: center; color: #999;">等待數據分析...</p>
-            </div>
-        </div>
-    </div>
-    
+    </main>
+
     <script>
-        // 數據存儲
-        let currentData = {};
-        
-        // 驗證輸入
-        function validateInputs() {
-            const inputs = {
-                open: parseFloat(document.getElementById('open').value),
-                high: parseFloat(document.getElementById('high').value),
-                low: parseFloat(document.getElementById('low').value),
-                close: parseFloat(document.getElementById('close').value),
-                volume: parseFloat(document.getElementById('volume').value),
-                ma5: parseFloat(document.getElementById('ma5').value),
-                ma20: parseFloat(document.getElementById('ma20').value),
-                instCost: parseFloat(document.getElementById('instCost').value),
-                kdK: parseFloat(document.getElementById('kdK').value),
-                kdD: parseFloat(document.getElementById('kdD').value),
-                macdH: parseFloat(document.getElementById('macdH').value),
-                macdHPrev: parseFloat(document.getElementById('macdHPrev').value),
-                volumePrev: parseFloat(document.getElementById('volumePrev').value)
-            };
-            
-            for (let key in inputs) {
-                if (isNaN(inputs[key])) {
-                    alert(`請輸入有效的 ${key} 值`);
-                    return null;
+        async function loadStockData() {
+            try {
+                // 讀取由 Actions 產生的 data.json
+                const response = await fetch('data.json?t=' + new Date().getTime());
+                const data = await response.json();
+                
+                const container = document.getElementById('stock-list');
+                const timeEl = document.getElementById('update-time');
+                
+                timeEl.innerText = `最後更新：${data.last_update || '剛剛'}`;
+                container.innerHTML = '';
+
+                if (data.stocks && data.stocks.length > 0) {
+                    data.stocks.forEach(stock => {
+                        const card = `
+                            <div class="stock-card rounded-xl p-5 shadow-lg">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h2 class="text-xl font-bold">${stock.name}</h2>
+                                        <p class="text-slate-400 text-sm">${stock.id}</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-slate-800 rounded text-xs font-mono">${stock.category || '法人掃描'}</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-slate-500 text-xs uppercase">目前價格</p>
+                                        <p class="text-2xl font-mono ${stock.change >= 0 ? 'trend-up' : 'trend-down'}">${stock.price}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-slate-500 text-xs uppercase">法人籌碼</p>
+                                        <p class="text-lg font-semibold text-blue-400">${stock.institutional_buy} 張</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-slate-800 flex justify-between text-sm">
+                                    <span class="text-slate-400">動能強度</span>
+                                    <span class="text-yellow-500 font-bold">${stock.momentum_score}/10</span>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += card;
+                    });
+                } else {
+                    container.innerHTML = '<div class="col-span-full text-center text-slate-500">今日暫無符合條件之標的</div>';
                 }
-            }
-            
-            if (inputs.open <= 0 || inputs.high <= 0 || inputs.low <= 0 || inputs.close <= 0) {
-                alert('價格必須大於 0');
-                return null;
-            }
-            
-            if (inputs.volume <= 0) {
-                alert('成交量必須大於 0');
-                return null;
-            }
-            
-            if (inputs.kdK < 0 || inputs.kdK > 100 || inputs.kdD < 0 || inputs.kdD > 100) {
-                alert('KD值必須在 0-100 之間');
-                return null;
-            }
-            
-            return inputs;
-        }
-        
-        // 當沖訊號
-        function buttonDayTrade(data) {
-            const cond1 = data.open > 101; // 開盤跳空 > 1%
-            const cond2 = data.volume > 2000000; // 量比爆發 (假設)
-            const cond3 = data.close > data.ma5; // 站上5日線
-            
-            return {
-                triggered: cond1 && cond2 && cond3,
-                conditions: {
-                    '開盤跳空 > 1%': cond1,
-                    '量比爆發 > 2倍': cond2,
-                    '站上5日線': cond3
-                }
-            };
-        }
-        
-        // 3-5日短波
-        function buttonShortSwing(data) {
-            const deviation = Math.abs(data.close - data.ma5) / data.ma5;
-            const cond1 = deviation < 0.015; // 回踩5日線
-            const cond2 = data.close > data.instCost; // 守住主力成本
-            const cond3 = data.kdK > data.kdD; // KD金叉
-            const cond4 = data.macdH > data.macdHPrev; // MACD柱狀體轉強
-            const cond5 = data.close > data.open && data.volume > data.volumePrev; // 價量齊揚
-            
-            return {
-                triggered: cond1 && cond2 && cond3 && cond4 && cond5,
-                conditions: {
-                    '回踩5日線 (偏差<1.5%)': cond1,
-                    '守住主力成本線': cond2,
-                    'KD金叉': cond3,
-                    'MACD柱狀體轉強': cond4,
-                    '價量齊揚': cond5
-                }
-            };
-        }
-        
-        // 10日波段
-        function buttonMomentum10d(data) {
-            const cond1 = data.close > data.ma20; // 高於20日線
-            const cond2 = data.close > data.instCost; // 高於主力成本
-            const cond3 = data.volume < data.volumePrev; // 縮量
-            const cond4 = data.ma5 > data.ma20; // 趨勢向上
-            
-            return {
-                triggered: cond1 && cond2 && cond3 && cond4,
-                conditions: {
-                    '高於20日線': cond1,
-                    '高於主力成本線': cond2,
-                    '縮量洗盤': cond3,
-                    '趨勢向上 (MA5>MA20)': cond4
-                }
-            };
-        }
-        
-        // 計算所有訊號
-        function calculateSignals() {
-            const data = validateInputs();
-            if (!data) return;
-            
-            currentData = data;
-            
-            // 計算三個訊號
-            const dayTrade = buttonDayTrade(data);
-            const swing = buttonShortSwing(data);
-            const momentum = buttonMomentum10d(data);
-            
-            // 更新訊號顯示
-            updateSignalDisplay('dayTrade', dayTrade);
-            updateSignalDisplay('swing', swing);
-            updateSignalDisplay('momentum', momentum);
-            
-            // 更新指標表
-            updateIndicatorsTable(data);
-            
-            // 生成詳細報告
-            generateDetailedReport(data, dayTrade, swing, momentum);
-        }
-        
-        // 更新訊號顯示
-        function updateSignalDisplay(type, result) {
-            let resultDiv, cardDiv;
-            
-            if (type === 'dayTrade') {
-                resultDiv = document.getElementById('dayTradeResult');
-                cardDiv = document.getElementById('dayTradeCard');
-            } else if (type === 'swing') {
-                resultDiv = document.getElementById('swingResult');
-                cardDiv = document.getElementById('swingCard');
-            } else if (type === 'momentum') {
-                resultDiv = document.getElementById('momentumResult');
-                cardDiv = document.getElementById('momentumCard');
-            }
-            
-            const message = result.triggered ? '✅ 信號觸發！' : '⏸️ 未達標準';
-            resultDiv.textContent = message;
-            resultDiv.style.color = result.triggered ? '#43e97b' : '#f5576c';
-            
-            if (result.triggered) {
-                cardDiv.classList.add('active');
-            } else {
-                cardDiv.classList.remove('active');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-500 text-center">無法讀取資料。請確認 data.json 已正確產生。</div>';
             }
         }
-        
-        // 更新指標表
-        function updateIndicatorsTable(data) {
-            const tbody = document.getElementById('indicatorsBody');
-            const indicators = [
-                { name: '收盤價', value: data.close.toFixed(2), positive: data.close > data.open },
-                { name: '5日均線 (MA5)', value: data.ma5.toFixed(2), positive: data.close > data.ma5 },
-                { name: '20日均線 (MA20)', value: data.ma20.toFixed(2), positive: data.close > data.ma20 },
-                { name: '主力成本線', value: data.instCost.toFixed(2), positive: data.close > data.instCost },
-                { name: 'KD K值', value: data.kdK.toFixed(2), positive: data.kdK > 70 },
-                { name: 'KD D值', value: data.kdD.toFixed(2), positive: data.kdD > 70 },
-                { name: 'MACD柱狀體', value: data.macdH.toFixed(4), positive: data.macdH > 0 },
-                { name: '成交量', value: Math.round(data.volume).toLocaleString(), positive: data.volume > data.volumePrev }
-            ];
-            
-            tbody.innerHTML = indicators.map(ind => {
-                const valueClass = ind.positive ? 'value-positive' : (ind.positive === false ? 'value-negative' : 'value-neutral');
-                const status = ind.positive ? '✅ 正面' : (ind.positive === false ? '⚠️ 負面' : '➖ 中性');
-                return `
-                    <tr>
-                        <td>${ind.name}</td>
-                        <td class="${valueClass}">${ind.value}</td>
-                        <td>${status}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        // 生成詳細報告
-        function generateDetailedReport(data, dayTrade, swing, momentum) {
-            let report = '<div style="background: #f9f9f9; padding: 20px; border-radius: 8px;">';
-            
-            // 當沖訊號詳情
-            report += '<div style="margin-bottom: 20px;">';
-            report += '<h3 style="color: #f5576c; margin-bottom: 10px;">🔥 當沖訊號詳情</h3>';
-            report += `<p style="margin: 5px 0;"><strong>狀態：</strong> ${dayTrade.triggered ? '✅ <span style="color: #43e97b;">信號觸發</span>' : '❌ <span style="color: #f5576c;">未觸發</span>'}</p>`;
-            for (let cond in dayTrade.conditions) {
-                const status = dayTrade.conditions[cond] ? '✅' : '❌';
-                report += `<p style="margin: 5px 0; margin-left: 20px;">${status} ${cond}</p>`;
-            }
-            report += '</div>';
-            
-            // 3-5日短波詳情
-            report += '<div style="margin-bottom: 20px;">';
-            report += '<h3 style="color: #00f2fe; margin-bottom: 10px;">🚀 3-5日短波詳情</h3>';
-            report += `<p style="margin: 5px 0;"><strong>狀態：</strong> ${swing.triggered ? '✅ <span style="color: #43e97b;">信號觸發</span>' : '❌ <span style="color: #f5576c;">未觸發</span>'}</p>`;
-            for (let cond in swing.conditions) {
-                const status = swing.conditions[cond] ? '✅' : '❌';
-                report += `<p style="margin: 5px 0; margin-left: 20px;">${status} ${cond}</p>`;
-            }
-            report += '</div>';
-            
-            // 10日波段詳情
-            report += '<div style="margin-bottom: 20px;">';
-            report += '<h3 style="color: #43e97b; margin-bottom: 10px;">💎 10日波段詳情</h3>';
-            report += `<p style="margin: 5px 0;"><strong>狀態：</strong> ${momentum.triggered ? '✅ <span style="color: #43e97b;">信號觸發</span>' : '❌ <span style="color: #f5576c;">未觸發</span>'}</p>`;
-            for (let cond in momentum.conditions) {
-                const status = momentum.conditions[cond] ? '✅' : '❌';
-                report += `<p style="margin: 5px 0; margin-left: 20px;">${status} ${cond}</p>`;
-            }
-            report += '</div>';
-            
-            // 總結
-            const totalSignals = (dayTrade.triggered ? 1 : 0) + (swing.triggered ? 1 : 0) + (momentum.triggered ? 1 : 0);
-            report += '<div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea;">';
-            report += `<p><strong>🎯 總體評估：</strong> 觸發 ${totalSignals} 個交易訊號</p>`;
-            report += '<p style="font-size: 0.9em; color: #666; margin-top: 10px;">提醒：此系統為輔助工具，交易決策應結合市場環境、資金管理及風險控制。</p>';
-            report += '</div>';
-            
-            report += '</div>';
-            
-            document.getElementById('detailedReport').innerHTML = report;
-        }
-        
-        // 單獨檢查當沖訊號
-        function checkDayTrade() {
-            const data = validateInputs();
-            if (!data) return;
-            const result = buttonDayTrade(data);
-            alert(`當沖訊號：${result.triggered ? '✅ 信號觸發！' : '❌ 未達標準'}\n\n開盤跳空: ${result.conditions['開盤跳空 > 1%'] ? '✅' : '❌'}\n量比爆發: ${result.conditions['量比爆發 > 2倍'] ? '✅' : '❌'}\n站上5日線: ${result.conditions['站上5日線'] ? '✅' : '❌'}`);
-        }
-        
-        // 單獨檢查短波訊號
-        function checkSwing() {
-            const data = validateInputs();
-            if (!data) return;
-            const result = buttonShortSwing(data);
-            let msg = `3-5日短波：${result.triggered ? '✅ 信號觸發！' : '❌ 未達標準'}\n\n`;
-            for (let cond in result.conditions) {
-                msg += `${result.conditions[cond] ? '✅' : '❌'} ${cond}\n`;
-            }
-            alert(msg);
-        }
-        
-        // 單獨檢查波段訊號
-        function checkMomentum() {
-            const data = validateInputs();
-            if (!data) return;
-            const result = buttonMomentum10d(data);
-            let msg = `10日波段：${result.triggered ? '✅ 信號觸發！' : '❌ 未達標準'}\n\n`;
-            for (let cond in result.conditions) {
-                msg += `${result.conditions[cond] ? '✅' : '❌'} ${cond}\n`;
-            }
-            alert(msg);
-        }
-        
-        // 頁面加載時的初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 預填示例數據
-            document.getElementById('open').value = '100';
-            document.getElementById('high').value = '105';
-            document.getElementById('low').value = '98';
-            document.getElementById('close').value = '103';
-            document.getElementById('volume').value = '2500000';
-            document.getElementById('ma5').value = '102';
-            document.getElementById('ma20').value = '100';
-            document.getElementById('instCost').value = '99';
-            document.getElementById('kdK').value = '75';
-            document.getElementById('kdD').value = '70';
-            document.getElementById('macdH').value = '0.5';
-            document.getElementById('macdHPrev').value = '0.3';
-            document.getElementById('volumePrev').value = '1200000';
-        });
+
+        loadStockData();
+        // 每 5 分鐘自動刷新
+        setInterval(loadStockData, 300000);
     </script>
 </body>
 </html>
+import json
+from datetime import datetime
+
+# 假設你的掃描結果是一個 list
+results = [
+    {"id": "2337", "name": "旺宏", "price": 25.5, "change": 1.2, "institutional_buy": 1500, "momentum_score": 8},
+    # ... 其他掃描到的股票
+]
+
+data_to_save = {
+    "last_update": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "stocks": results
+}
+
+with open('data.json', 'w', encoding='utf-8') as f:
+    json.dump(data_to_save, f, ensure_ascii=False, indent=4)
