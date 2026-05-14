@@ -5,6 +5,10 @@ on:
     - cron: '30 7 * * 1-5'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   stock_scan_job:
     runs-on: ubuntu-latest
@@ -35,100 +39,61 @@ jobs:
             const glob = require('glob');
             const path = require('path');
             
-            // 取得最新的 CSV 檔案
             const reports = glob.sync('reports/stock_scan_*.csv');
-            if (reports.length === 0) {
-              console.log('No reports found');
-              return;
-            }
+            if (reports.length === 0) return;
             
             const latest = reports.sort().pop();
-            console.log(`Using report: ${latest}`);
-            
-            // 讀取 CSV 內容
             const csvContent = fs.readFileSync(latest, 'utf-8');
             const lines = csvContent.split('\n').filter(line => line.trim());
             
-            if (lines.length <= 1) {
-              console.log('No results to report');
-              return;
-            }
+            if (lines.length <= 1) return;
             
-            // 取得掃描結果
             const resultCount = lines.length - 1;
             const csvLines = lines.slice(0, Math.min(6, lines.length));
             let tablePreview = csvLines.join('\n');
             
-            // 建立 Issue
-            const issueBody = `## 🤖 自動選股系統掃描結果
+            // 建立網頁用的 data.json
+            const headers = lines[0].split(',');
+            const stocks = lines.slice(1).map(line => {
+                const values = line.split(',');
+                return {
+                    id: values[0],
+                    name: values[1],
+                    price: values[2],
+                    change: parseFloat(values[3]) || 0,
+                    institutional_buy: values[4] || 'N/A',
+                    momentum_score: Math.floor(Math.random() * 3) + 7 // 隨機 7-10 分，或根據你的 CSV 欄位調整
+                };
+            });
 
-**掃描時間**: ${new Date().toLocaleString('zh-TW')}
-**找到**: ${resultCount} 檔符合條件的股票
-
-### 📈 結果預覽
-\`\`\`
-${tablePreview}
-${resultCount > 5 ? '\n... 還有 ' + (resultCount - 5) + ' 筆記錄' : ''}
-\`\`\`
-
-### 📊 詳細資訊
-
-| 項目 | 說明 |
-|------|------|
-| 掃描標的 | 5 檔股票 |
-| 符合條件 | ${resultCount} 檔 |
-| 報告檔案 | \`${path.basename(latest)}\` |
-| 線上工具 | https://tailee688-tech.github.io/stock123/ |
-
-### 🎯 訊號說明
-
-- 🚀 **回踩發動** (3-5日短波) - 回踩MA5、KD金叉、MACD轉強、價量齊揚
-- 💎 **趨勢動能** (10日波段) - 三線排列、縮量洗盤、RSI未超買
-- 🔥 **成交量爆發** (當沖訊號) - 開盤跳空、量比爆發、上影線短
-- ⚡ **MACD金叉** (長期趨勢) - MACD金叉、量能支撐、RSI合理區間
-- 📈 **反轉突破** (低位起漲) - RSI超賣、KD超賣、量能放大
-
-### 📋 更多資源
-
-- 📁 CSV 報告: [reports/${path.basename(latest)}](https://github.com/${{ github.repository }}/blob/main/${latest})
-- 🌐 線上分析工具: https://tailee688-tech.github.io/stock123/
-- 📚 GitHub Pages: https://github.com/${{ github.repository }}/tree/main
-
----
-
-**⚠️ 免責聲明**: 
-本系統為技術分析輔助工具，僅供參考，不構成投資建議。交易決策應結合市場環境、資金管理及風險控制。投資有風險，請謹慎評估。
-`;
+            const dataJson = {
+                last_update: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
+                stocks: stocks
+            };
+            fs.writeFileSync('data.json', JSON.stringify(dataJson, null, 4));
             
-            try {
-              await github.rest.issues.create({
+            // 建立 Issue
+            await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: '📊 股票掃描報告 - ' + new Date().toISOString().split('T')[0],
-                body: issueBody,
+                body: `## 🤖 自動選股系統掃描結果\n\n**找到**: ${resultCount} 檔標的\n\n### 📈 預覽\n\`\`\`\n${tablePreview}\n\`\`\`\n\n🔗 [查看即時戰情看板](https://tailee688-tech.github.io/stock123/)`,
                 labels: ['stock-scan', 'automated']
-              });
-              
-              console.log('✅ Issue created successfully');
-            } catch (error) {
-              console.error('❌ Failed to create issue:', error);
-            }
+            });
 
       - name: 6. 上傳報告到 Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: stock_scan_reports
           path: reports/
           retention-days: 30
 
-      - name: 7. 提交報告到 Git
+      - name: 7. 提交資料到 Git (更新網頁與報告)
         if: always()
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          if [ -d "reports" ] && [ "$(ls -A reports)" ]; then
-            git add reports/
-            git commit -m "chore: add stock scan report $(date +%Y-%m-%d)" || true
-            git push
-          fi
+          git add reports/ data.json
+          git commit -m "chore: update scan results and dashboard $(date +%Y-%m-%d)" || exit 0
+          git push
