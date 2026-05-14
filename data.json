@@ -1,85 +1,85 @@
 {
-  "last_update": "2026-05-14 15:04:07",
+  "last_update": "2026-05-14 15:18:01",
   "stocks": [
     {
       "id": "2330",
       "name": "TAIWANSEMICONDUCTORMANUFACTUR",
       "price": 2270.0,
-      "change": 2.1,
-      "institutional_buy": 3289,
-      "momentum_score": 10,
+      "change": 5.6,
+      "institutional_buy": 8156,
+      "momentum_score": 9,
       "category": "法人量動能掃描"
     },
     {
       "id": "2337",
       "name": "MACRONIXINTERNATIONAL",
       "price": 169.0,
-      "change": -1.1,
-      "institutional_buy": 1651,
-      "momentum_score": 10,
+      "change": 4.0,
+      "institutional_buy": 3432,
+      "momentum_score": 9,
       "category": "法人量動能掃描"
     },
     {
       "id": "2408",
       "name": "NANYATECHNOLOGYCORPORATION",
       "price": 341.0,
-      "change": 4.7,
-      "institutional_buy": 4729,
-      "momentum_score": 8,
+      "change": -3.7,
+      "institutional_buy": 1768,
+      "momentum_score": 10,
       "category": "法人量動能掃描"
     },
     {
       "id": "3481",
       "name": "INNOLUXCORPORATION",
       "price": 35.4,
-      "change": 6.0,
-      "institutional_buy": 2205,
-      "momentum_score": 8,
+      "change": 4.4,
+      "institutional_buy": 7584,
+      "momentum_score": 7,
       "category": "法人量動能掃描"
     },
     {
       "id": "2303",
       "name": "UNITEDMICROELECTRONICS",
       "price": 108.0,
-      "change": -1.0,
-      "institutional_buy": 5196,
-      "momentum_score": 8,
+      "change": 3.9,
+      "institutional_buy": 1553,
+      "momentum_score": 7,
       "category": "法人量動能掃描"
     },
     {
       "id": "3711",
       "name": "ASETECHNOLOGYHOLDINGCOLTD",
       "price": 548.0,
-      "change": 2.8,
-      "institutional_buy": 3361,
-      "momentum_score": 8,
+      "change": -3.9,
+      "institutional_buy": 5968,
+      "momentum_score": 10,
       "category": "法人量動能掃描"
     },
     {
       "id": "2354",
       "name": "FOXCONNTECHCO",
       "price": 59.0,
-      "change": 3.8,
-      "institutional_buy": 2286,
-      "momentum_score": 10,
+      "change": 2.7,
+      "institutional_buy": 2818,
+      "momentum_score": 8,
       "category": "法人量動能掃描"
     },
     {
       "id": "3034",
       "name": "NOVATEKMICROELECTRONICS",
       "price": 493.0,
-      "change": 5.0,
-      "institutional_buy": 5986,
-      "momentum_score": 6,
+      "change": -3.0,
+      "institutional_buy": 7035,
+      "momentum_score": 9,
       "category": "法人量動能掃描"
     },
     {
       "id": "2382",
       "name": "QUANTACOMPUTER",
       "price": 334.5,
-      "change": 4.9,
-      "institutional_buy": 6014,
-      "momentum_score": 9,
+      "change": -2.3,
+      "institutional_buy": 7225,
+      "momentum_score": 6,
       "category": "法人量動能掃描"
     }
   ]
