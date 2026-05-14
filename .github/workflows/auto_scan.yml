@@ -1,87 +1,36 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock123 | 法人量動能戰情室</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { 
-            background-color: #0f172a; 
-            color: #f8fafc; 
-            font-family: sans-serif; 
-        }
-        .stock-card { 
-            background: linear-gradient(145deg, #1e293b, #0f172a); 
-            border: 1px solid #334155; 
-        }
-        .trend-up { color: #f43f5e; } /* 漲紅 */
-        .trend-down { color: #10b981; } /* 跌綠 */
-    </style>
-</head>
-<body class="p-4 md:p-8">
-    <header class="mb-8 border-b border-slate-700 pb-4">
-        <h1 class="text-3xl font-bold tracking-tight">戰情看板 <span class="text-sm font-normal text-slate-400">| 自動掃描結果</span></h1>
-        <p id="update-time" class="text-xs text-slate-500 mt-2">最後更新：載入中...</p>
-    </header>
-    <main>
-        <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="animate-pulse text-slate-500 text-center col-span-full py-20">資料掃描中...</div>
-        </div>
-    </main>
+name: 煥然戰情室 - 每日自動掃描
 
-    <script>
-        async function loadStockData() {
-            try {
-                const response = await fetch('data.json?t=' + new Date().getTime());
-                const data = await response.json();
-                
-                const container = document.getElementById('stock-list');
-                const timeEl = document.getElementById('update-time');
-                
-                timeEl.innerText = `最後更新：${data.last_update || '剛剛'}`;
-                container.innerHTML = '';
-                
-                if (data.stocks && data.stocks.length > 0) {
-                    data.stocks.forEach(stock => {
-                        const card = `
-                            <div class="stock-card rounded-xl p-5 shadow-lg">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h2 class="text-xl font-bold">${stock.name}</h2>
-                                        <p class="text-slate-400 text-sm">${stock.id}</p>
-                                    </div>
-                                    <span class="px-2 py-1 bg-slate-800 rounded text-xs font-mono">${stock.category || '法人掃描'}</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p class="text-slate-500 text-xs uppercase">目前價格</p>
-                                        <p class="text-2xl font-mono ${stock.change >= 0 ? 'trend-up' : 'trend-down'}">${stock.price}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-slate-500 text-xs uppercase">法人籌碼</p>
-                                        <p class="text-lg font-semibold text-blue-400">${stock.institutional_buy} 張</p>
-                                    </div>
-                                </div>
-                                <div class="mt-4 pt-4 border-t border-slate-800 flex justify-between text-sm">
-                                    <span class="text-slate-400">動能強度</span>
-                                    <span class="text-yellow-500 font-bold">${stock.momentum_score}/10</span>
-                                </div>
-                            </div>
-                        `;
-                        container.innerHTML += card;
-                    });
-                } else {
-                    container.innerHTML = '<div class="col-span-full text-center text-slate-500">今日暫無符合條件之標的</div>';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-500 text-center">無法讀取資料。<br>請確認 data.json 已正確產生。</div>';
-            }
-        }
+on:
+  schedule:
+    - cron: '30 0 * * *'     # 每天台灣時間早上 8:30 執行
+  workflow_dispatch:         # 可以手動點擊執行
 
-        loadStockData();
-        setInterval(loadStockData, 300000);
-    </script>
-</body>
-</html>
+jobs:
+  scan-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout 程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 安裝依賴套件
+        run: |
+          pip install -r requirements.txt
+
+      - name: 執行股票掃描
+        run: |
+          python trading_bot.py
+
+      - name: Commit & Push 更新後的 data.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "🤖 自動更新戰情資料 - $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
