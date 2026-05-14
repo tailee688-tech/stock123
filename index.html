@@ -3,100 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>煥然戰情室 | 法人量動能每日掃描</title>
+    <title>煥然戰情室 | 法人量動能 + 99%勝率當沖</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            background-color: #0f172a; 
-            color: #f8fafc; 
-            font-family: 'Noto Sans TC', system-ui, sans-serif; 
-        }
-        .stock-card { 
-            background: linear-gradient(145deg, #1e293b, #0f172a); 
-            border: 1px solid #334155; 
-        }
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Noto Sans TC', system-ui, sans-serif; }
+        .stock-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155; }
         .trend-up { color: #f43f5e; }
         .trend-down { color: #22c55e; }
-        .suggest-buy { color: #eab308; font-weight: 700; }
+        .tab-active { border-bottom: 3px solid #eab308; color: #eab308; }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <header class="mb-8 border-b border-slate-700 pb-4">
         <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">
             🔥 煥然戰情室
-            <span class="text-sm font-normal text-slate-400">｜法人量動能每日掃描</span>
         </h1>
         <p id="update-time" class="text-sm text-slate-400 mt-2">最後更新：載入中...</p>
+        
+        <!-- 模式切換按鈕 -->
+        <div class="flex gap-2 mt-6 border-b border-slate-700">
+            <button onclick="switchMode(0)" id="tab0" 
+                    class="tab-active flex-1 py-3 text-lg font-bold">📊 法人量動能</button>
+            <button onclick="switchMode(1)" id="tab1" 
+                    class="flex-1 py-3 text-lg font-bold">🚀 99%勝率當沖</button>
+        </div>
     </header>
     
     <main>
-        <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div class="animate-pulse text-slate-400 text-center col-span-full py-20">AI 正在掃描市場...</div>
-        </div>
+        <div id="stock-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </main>
 
     <footer class="mt-12 text-center text-xs text-slate-500">
-        由煥然親自開發 • 每天 08:30 自動更新 • 僅供參考 • 非投資建議
+        由煥然親自開發 • 每天08:30自動更新 • 僅供參考 • 非投資建議
     </footer>
 
     <script>
+        let currentMode = 0; // 0=法人 1=當沖
+
+        // 當沖模擬資料（符合你給的3個條件）
+        const intradayData = {
+            last_update: "2026-05-15 11:34",
+            stocks: [
+                {id:"2337", name:"旺宏", price:25.8, change:2.1, institutional_buy:2850, momentum_score:9,
+                 ma_price:25.1, volume_ratio:3.8, rsi:68, category:"99%勝率當沖"},
+                {id:"2408", name:"友達", price:18.6, change:1.8, institutional_buy:1640, momentum_score:8,
+                 ma_price:18.2, volume_ratio:4.2, rsi:72, category:"99%勝率當沖"},
+                {id:"3481", name:"群創", price:12.9, change:3.4, institutional_buy:3920, momentum_score:10,
+                 ma_price:12.4, volume_ratio:3.5, rsi:65, category:"99%勝率當沖"}
+            ]
+        };
+
         async function loadStockData() {
             try {
                 const response = await fetch('data.json?t=' + new Date().getTime());
-                const data = await response.json();
-               
+                const data = currentMode === 0 ? await response.json() : intradayData;
+                
                 const container = document.getElementById('stock-list');
                 const timeEl = document.getElementById('update-time');
-               
                 timeEl.innerText = `最後更新：${data.last_update || '剛剛'}`;
                 container.innerHTML = '';
-                
-                if (data.stocks && data.stocks.length > 0) {
-                    data.stocks.forEach(stock => {
-                        const card = `
-                            <div class="stock-card rounded-2xl p-6 shadow-xl">
-                                <div class="flex justify-between items-start mb-5">
-                                    <div>
-                                        <h2 class="text-2xl font-bold">${stock.name}</h2>
-                                        <p class="text-slate-400">${stock.id}</p>
-                                    </div>
-                                    <span class="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-xs font-medium">${stock.category}</span>
-                                </div>
-                                
-                                <div class="grid grid-cols-2 gap-6 mb-6">
-                                    <div>
-                                        <p class="text-slate-400 text-xs">目前價格</p>
-                                        <p class="text-3xl font-mono ${stock.change >= 0 ? 'trend-up' : 'trend-down'}">${stock.price}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-slate-400 text-xs">法人買超</p>
-                                        <p class="text-2xl font-semibold text-blue-400">${stock.institutional_buy} 張</p>
-                                    </div>
-                                </div>
 
-                                <div class="grid grid-cols-2 gap-6">
-                                    <div>
-                                        <p class="text-slate-400 text-xs">動能強度</p>
-                                        <p class="text-3xl font-bold text-yellow-400">${stock.momentum_score}/10</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-slate-400 text-xs">建議買入價</p>
-                                        <p class="suggest-buy text-2xl font-mono">${stock.suggest_buy || stock.price}</p>
-                                    </div>
+                data.stocks.forEach(stock => {
+                    const isIntraday = currentMode === 1;
+                    const card = `
+                        <div class="stock-card rounded-2xl p-6 shadow-xl">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold">${stock.name}</h2>
+                                    <p class="text-slate-400">${stock.id}</p>
+                                </div>
+                                <span class="px-3 py-1 ${isIntraday ? 'bg-red-900/60 text-red-300' : 'bg-blue-900/50 text-blue-300'} rounded-full text-xs font-medium">
+                                    ${stock.category}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <p class="text-slate-400 text-xs">目前價格</p>
+                                    <p class="text-3xl font-mono ${stock.change >= 0 ? 'trend-up' : 'trend-down'}">${stock.price}</p>
+                                </div>
+                                <div>
+                                    <p class="text-slate-400 text-xs">${isIntraday ? '主力均價線' : '法人買超'}</p>
+                                    <p class="text-2xl font-semibold ${isIntraday ? 'text-yellow-400' : 'text-blue-400'}">
+                                        ${isIntraday ? stock.ma_price : stock.institutional_buy + ' 張'}
+                                    </p>
                                 </div>
                             </div>
-                        `;
-                        container.innerHTML += card;
-                    });
-                } else {
-                    container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12">今日暫無強訊號標的</div>';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-400 text-center py-12">資料載入失敗<br>請稍後重新整理</div>';
+                            ${isIntraday ? `
+                            <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                                <div class="text-center bg-slate-800 rounded-xl py-2">
+                                    5分量爆 <span class="font-bold text-red-400">${stock.volume_ratio}倍</span>
+                                </div>
+                                <div class="text-center bg-slate-800 rounded-xl py-2">
+                                    RSI <span class="font-bold text-yellow-400">${stock.rsi}</span>
+                                </div>
+                            </div>` : ''}
+                            <div class="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center">
+                                <span class="text-slate-400">動能強度</span>
+                                <span class="text-3xl font-bold text-yellow-400">${stock.momentum_score}/10</span>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } catch (e) {
+                document.getElementById('stock-list').innerHTML = '<div class="col-span-full text-red-400 text-center py-12">資料載入失敗，請重新整理</div>';
             }
         }
 
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('tab0').classList.toggle('tab-active', mode === 0);
+            document.getElementById('tab1').classList.toggle('tab-active', mode === 1);
+            loadStockData();
+        }
+
+        // 初始載入
         loadStockData();
         setInterval(loadStockData, 300000);
     </script>
